@@ -1,0 +1,48 @@
+name: Build image
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MAIN_GIT_REF: refs/heads/master
+
+jobs:
+  image:
+    name: Build docker image
+    runs-on: [ self-hosted, bear-ephemeral ]
+    steps:
+      - name: Set Up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build And Push Image (Pull Request)
+        if: ${{ github.ref != env.MAIN_GIT_REF }}
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: |
+            ${{ secrets.ECR_REGISTRY }}/pgsql-client:${{ github.run_id }}
+
+      - name: Build And Push Image (Main Branch)
+        if: ${{ github.ref == env.MAIN_GIT_REF }}
+        uses: docker/build-push-action@v3
+        with:
+          context: migrations
+          push: true
+          tags: |
+            ${{ secrets.ECR_REGISTRY }}/pgsql-client:${{ github.run_id }}
+            ${{ secrets.ECR_REGISTRY }}/pgsql-client:latest
