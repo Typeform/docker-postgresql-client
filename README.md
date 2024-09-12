@@ -1,3 +1,4 @@
+<a href=https://engineering-metrics.typeform.tf/standards-adoption-tool/reports/docker-postgresql-client/><img src=https://api.typeform.com/repositories/docker-postgresql-client/badges.svg /></a>
 # Postgresql Client
 
 This client is compatible with the official postgresql image, which means that it uses the environment variables provided by the image.
